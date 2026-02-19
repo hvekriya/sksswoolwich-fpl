@@ -5,7 +5,6 @@ Fantasy football league app for tracking player performance and rankings.
 ## Features
 
 - **Players** – Add and manage squad players (GK, DEF, MID, FWD)
-- **FPL Team** – Build your fantasy team lineup with captain selection
 - **Admin** – Enter weekly points every Wednesday based on football performance
 - **Points system**
   - Goals: 3 pts
@@ -24,9 +23,8 @@ npm run dev
 
 ## Usage
 
-1. Add players on the **Players** page
-2. Build your FPL team on the **Team** page
-3. In **Admin → Manage Weeks**, create a new week (use Wednesday dates)
+1. Add players on the **Players** page (admin only)
+2. In **Admin → Manage Weeks**, create a new week (use Wednesday dates)
 4. In **Admin → Weekly Points**, enter goals, assists, saves, and MVP for each player
 5. View **Rankings** for the yearly table and **Weekly Performance** for per-week stats
 
@@ -48,3 +46,11 @@ SUPABASE_KEY=your-anon-key
 
 5. Deploy the app (Vercel, Netlify, etc.) with these env vars
 6. Share the link – friends can view rankings and stats
+
+### Admin login
+
+Admin pages are protected. Create an admin user in Supabase: **Authentication → Users → Add user** (email + password). Use those credentials at `/login`.
+
+### Player avatars
+
+Create a public bucket `player-avatars` in Supabase Storage (see `supabase/storage-setup.md`). Images are resized to 200px and compressed as JPEG before upload. Without the bucket, avatars fall back to base64.

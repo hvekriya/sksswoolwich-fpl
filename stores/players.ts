@@ -7,6 +7,7 @@ export interface Player {
   name: string
   position: Position
   number?: number
+  avatarUrl?: string
   createdAt: string
 }
 

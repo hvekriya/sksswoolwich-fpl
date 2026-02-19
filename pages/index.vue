@@ -8,20 +8,13 @@
     </div>
     <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
       <NuxtLink
+        v-if="user"
         to="/players"
         class="group rounded-xl border border-slate-800 bg-slate-900/50 p-6 transition hover:border-amber-500/50 hover:bg-slate-900"
       >
         <div class="mb-3 text-3xl">⚽</div>
         <h2 class="mb-1 font-semibold text-white group-hover:text-amber-400">Players</h2>
         <p class="text-sm text-slate-400">View and manage squad players</p>
-      </NuxtLink>
-      <NuxtLink
-        to="/team"
-        class="group rounded-xl border border-slate-800 bg-slate-900/50 p-6 transition hover:border-amber-500/50 hover:bg-slate-900"
-      >
-        <div class="mb-3 text-3xl">🏆</div>
-        <h2 class="mb-1 font-semibold text-white group-hover:text-amber-400">FPL Team</h2>
-        <p class="text-sm text-slate-400">Your fantasy team lineup</p>
       </NuxtLink>
       <NuxtLink
         to="/rankings"
@@ -51,11 +44,12 @@
           >
             <span class="flex items-center gap-3">
               <span
-                class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
+                class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
                 :class="i === 0 ? 'bg-amber-500/30 text-amber-400' : 'bg-slate-700 text-slate-300'"
               >
                 {{ p.rank }}
               </span>
+              <PlayerAvatar :avatar-url="p.player?.avatarUrl" :name="p.name" size="sm" />
               {{ p.name }}
             </span>
             <span class="font-mono text-amber-400">{{ p.points }} pts</span>
@@ -67,11 +61,15 @@
 </template>
 
 <script setup lang="ts">
+const user = useSupabaseUser()
 const playersStore = usePlayersStore()
 const weeklyStore = useWeeklyPointsStore()
 
-const getPlayerName = (id: string) => playersStore.getPlayer(id)?.name ?? 'Unknown'
+const getPlayer = (id: string) => playersStore.getPlayer(id)
 const topPlayers = computed(() =>
-  weeklyStore.yearlyRanking(getPlayerName).slice(0, 5)
+  weeklyStore.yearlyRanking((id) => getPlayer(id)?.name ?? 'Unknown').slice(0, 5).map((p) => ({
+    ...p,
+    player: getPlayer(p.playerId),
+  }))
 )
 </script>

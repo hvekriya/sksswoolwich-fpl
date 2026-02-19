@@ -30,7 +30,12 @@
                 {{ p.rank }}
               </span>
             </td>
-            <td class="px-6 py-4 font-medium text-white">{{ p.name }}</td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <PlayerAvatar :avatar-url="p.player?.avatarUrl" :name="p.name" size="md" />
+                <span class="font-medium text-white">{{ p.name }}</span>
+              </div>
+            </td>
             <td class="px-6 py-4 text-right font-mono text-amber-400">{{ p.points }} pts</td>
           </tr>
         </tbody>
@@ -46,8 +51,11 @@
 const playersStore = usePlayersStore()
 const weeklyStore = useWeeklyPointsStore()
 
-const getPlayerName = (id: string) => playersStore.getPlayer(id)?.name ?? 'Unknown'
+const getPlayer = (id: string) => playersStore.getPlayer(id)
 const rankings = computed(() =>
-  weeklyStore.yearlyRanking(getPlayerName)
+  weeklyStore.yearlyRanking((id) => getPlayer(id)?.name ?? 'Unknown').map((r) => ({
+    ...r,
+    player: getPlayer(r.playerId),
+  }))
 )
 </script>

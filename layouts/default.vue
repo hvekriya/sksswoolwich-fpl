@@ -14,18 +14,12 @@
             Home
           </NuxtLink>
           <NuxtLink
+            v-if="user"
             to="/players"
             class="text-slate-300 transition hover:text-white"
             active-class="text-amber-400"
           >
             Players
-          </NuxtLink>
-          <NuxtLink
-            to="/team"
-            class="text-slate-300 transition hover:text-white"
-            active-class="text-amber-400"
-          >
-            FPL Team
           </NuxtLink>
           <NuxtLink
             to="/rankings"
@@ -34,9 +28,18 @@
           >
             Rankings
           </NuxtLink>
+          <template v-if="user">
+            <NuxtLink
+              to="/admin"
+              class="rounded bg-amber-500/20 px-3 py-1 text-amber-400 transition hover:bg-amber-500/30"
+            >
+              Admin
+            </NuxtLink>
+          </template>
           <NuxtLink
-            to="/admin"
-            class="rounded bg-amber-500/20 px-3 py-1 text-amber-400 transition hover:bg-amber-500/30"
+            v-else
+            to="/login"
+            class="text-sm text-slate-600 transition hover:text-slate-400"
           >
             Admin
           </NuxtLink>
@@ -48,3 +51,7 @@
     </main>
   </div>
 </template>
+
+<script setup lang="ts">
+const user = useSupabaseUser()
+</script>

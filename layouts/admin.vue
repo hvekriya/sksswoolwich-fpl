@@ -13,6 +13,12 @@
           <NuxtLink to="/admin/weeks" class="text-slate-300 transition hover:text-white" active-class="text-amber-400">
             Manage Weeks
           </NuxtLink>
+          <button
+            class="text-slate-400 transition hover:text-white"
+            @click="signOut"
+          >
+            Sign out
+          </button>
           <NuxtLink to="/" class="text-slate-400 transition hover:text-white">
             ← Back
           </NuxtLink>
@@ -24,3 +30,12 @@
     </main>
   </div>
 </template>
+
+<script setup lang="ts">
+const supabase = useSupabaseClient()
+
+async function signOut() {
+  await supabase.auth.signOut()
+  await navigateTo('/')
+}
+</script>

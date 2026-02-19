@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
+  ssr: false,
   modules: ['@nuxtjs/supabase', '@pinia/nuxt', '@nuxtjs/tailwindcss'],
   supabase: {
     redirect: false,

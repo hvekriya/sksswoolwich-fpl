@@ -1,6 +1,5 @@
 import type { Player } from '~/stores/players'
 import type { Week, WeekPerformance } from '~/stores/weeklyPoints'
-import type { FplTeam, FplTeamPlayer } from '~/stores/fplTeam'
 
 export async function syncPlayersToSupabase(supabase: any, players: Player[]) {
   if (!players.length) return
@@ -9,6 +8,7 @@ export async function syncPlayersToSupabase(supabase: any, players: Player[]) {
     name: p.name,
     position: p.position,
     number: p.number ?? null,
+    avatar_url: p.avatarUrl ?? null,
     created_at: p.createdAt,
   }))
   await supabase.from('players').upsert(rows, { onConflict: 'id' })
@@ -21,6 +21,7 @@ export async function syncPlayersFromSupabase(supabase: any): Promise<Player[]> 
     name: r.name,
     position: r.position,
     number: r.number,
+    avatarUrl: r.avatar_url,
     createdAt: r.created_at,
   }))
 }
@@ -72,46 +73,4 @@ export async function syncWeeksFromSupabase(supabase: any): Promise<Week[]> {
     })
   }
   return result
-}
-
-export async function syncFplTeamsToSupabase(supabase: any, teams: FplTeam[]) {
-  for (const t of teams) {
-    await supabase.from('fpl_teams').upsert({
-      id: t.id,
-      name: t.name,
-      created_at: t.createdAt,
-    }, { onConflict: 'id' })
-    for (const tp of t.players) {
-      await supabase.from('fpl_team_players').upsert({
-        team_id: t.id,
-        player_id: tp.playerId,
-        position: tp.position,
-        is_captain: tp.isCaptain ?? false,
-      }, { onConflict: 'team_id,player_id' })
-    }
-  }
-}
-
-export async function syncFplTeamsFromSupabase(supabase: any): Promise<{ teams: FplTeam[] }> {
-  const { data: teamsData } = await supabase.from('fpl_teams').select('*')
-  const teams = teamsData ?? []
-  const result: FplTeam[] = []
-  for (const t of teams) {
-    const { data: playersData } = await supabase
-      .from('fpl_team_players')
-      .select('*')
-      .eq('team_id', t.id)
-    const players: FplTeamPlayer[] = (playersData ?? []).map((p: any) => ({
-      playerId: p.player_id,
-      position: p.position ?? '',
-      isCaptain: p.is_captain,
-    }))
-    result.push({
-      id: t.id,
-      name: t.name,
-      players,
-      createdAt: t.created_at,
-    })
-  }
-  return { teams: result }
 }
