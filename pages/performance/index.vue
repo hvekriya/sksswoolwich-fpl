@@ -19,42 +19,70 @@
         :key="week.id"
         class="rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden"
       >
-        <h2 class="border-b border-slate-800 bg-slate-800/50 px-6 py-3 font-medium text-white">
+        <h2 class="border-b border-slate-800 bg-slate-800/50 px-4 py-3 font-medium text-white md:px-6">
           {{ week.label }} — {{ formatDate(week.date) }}
         </h2>
-        <table class="w-full">
-          <thead>
-            <tr class="border-b border-slate-700">
-              <th class="px-6 py-3 text-left text-sm font-medium text-slate-400">Player</th>
-              <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">Goals</th>
-              <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">Assists</th>
-              <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">Saves</th>
-              <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">MVP</th>
-              <th class="px-6 py-3 text-right text-sm font-medium text-slate-400">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="p in week.performances"
-              :key="p.playerId"
-              class="border-b border-slate-800/50 transition hover:bg-slate-800/20"
-            >
-              <td class="px-6 py-3 font-medium text-white">
-                {{ getPlayerName(p.playerId) }}
-              </td>
-              <td class="px-6 py-3 text-center text-slate-300">{{ p.goals }}</td>
-              <td class="px-6 py-3 text-center text-slate-300">{{ p.assists }}</td>
-              <td class="px-6 py-3 text-center text-slate-300">{{ p.saves }}</td>
-              <td class="px-6 py-3 text-center">
-                <span v-if="p.isMvp" class="text-amber-400">★</span>
+        <!-- Mobile: cards -->
+        <div class="divide-y divide-slate-800 md:hidden">
+          <button
+            v-for="p in week.performances"
+            :key="p.playerId"
+            type="button"
+            class="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-800/20"
+            @click="navigateTo(`/players/${p.playerId}`)"
+          >
+            <span class="font-medium text-white">{{ getPlayerName(p.playerId) }}</span>
+            <div class="flex flex-wrap items-center gap-4 text-sm">
+              <span><span class="text-slate-500">G</span> {{ p.didntPlay ? '—' : p.goals }}</span>
+              <span><span class="text-slate-500">A</span> {{ p.didntPlay ? '—' : p.assists }}</span>
+              <span><span class="text-slate-500">S</span> {{ p.didntPlay ? '—' : p.saves }}</span>
+              <span>
+                <AnimatedEmoji v-if="p.isMvp" type="medal" :size="20" />
                 <span v-else class="text-slate-600">—</span>
-              </td>
-              <td class="px-6 py-3 text-right font-mono text-amber-400">
-                {{ weeklyStore.getPointsForPerformance(p) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </span>
+              <span :class="p.didntPlay ? 'text-slate-500' : 'font-mono text-amber-400'">
+              {{ p.didntPlay ? "Didn't play" : `${weeklyStore.getPointsForPerformance(p)} pts` }}
+            </span>
+            </div>
+          </button>
+        </div>
+        <!-- Desktop: table -->
+        <div class="hidden overflow-x-auto md:block">
+          <table class="w-full min-w-[32rem]">
+            <thead>
+              <tr class="border-b border-slate-700">
+                <th class="px-6 py-3 text-left text-sm font-medium text-slate-400">Player</th>
+                <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">Goals</th>
+                <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">Assists</th>
+                <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">Saves</th>
+                <th class="px-6 py-3 text-center text-sm font-medium text-slate-400">MVP</th>
+                <th class="px-6 py-3 text-right text-sm font-medium text-slate-400">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="p in week.performances"
+                :key="p.playerId"
+                class="cursor-pointer border-b border-slate-800/50 transition hover:bg-slate-800/20"
+                @click="navigateTo(`/players/${p.playerId}`)"
+              >
+                <td class="px-6 py-3 font-medium text-white">
+                  {{ getPlayerName(p.playerId) }}
+                </td>
+                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : p.goals }}</td>
+                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : p.assists }}</td>
+                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : p.saves }}</td>
+                <td class="px-6 py-3 text-center">
+                  <AnimatedEmoji v-if="p.isMvp" type="medal" :size="28" />
+                  <span v-else class="text-slate-600">—</span>
+                </td>
+                <td class="px-6 py-3 text-right" :class="p.didntPlay ? 'text-slate-500' : 'font-mono text-amber-400'">
+                  {{ p.didntPlay ? "Didn't play" : weeklyStore.getPointsForPerformance(p) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
     <p v-else class="py-12 text-center text-slate-500">
@@ -64,9 +92,42 @@
 </template>
 
 <script setup lang="ts">
+const router = useRouter()
 const playersStore = usePlayersStore()
+
+function navigateTo(path: string) {
+  router.push(path)
+}
 const weeklyStore = useWeeklyPointsStore()
-const selectedWeekId = ref('')
+
+function getCurrentWeekId() {
+  const weeks = weeklyStore.allWeeks
+  if (!weeks.length) return ''
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const current = weeks.find((w) => {
+    const wed = new Date(w.date)
+    wed.setHours(0, 0, 0, 0)
+    const nextTue = new Date(wed)
+    nextTue.setDate(nextTue.getDate() + 7)
+    return today >= wed && today < nextTue
+  })
+  if (current) return current.id
+  const past = weeks.filter((w) => new Date(w.date) <= today)
+  return past.length ? past[past.length - 1].id : weeks[0].id
+}
+
+const selectedWeekId = ref(getCurrentWeekId())
+
+watch(
+  () => weeklyStore.allWeeks,
+  (weeks) => {
+    if (weeks.length && !selectedWeekId.value) {
+      selectedWeekId.value = getCurrentWeekId()
+    }
+  },
+  { immediate: true }
+)
 
 function getPlayerName(id: string) {
   return playersStore.getPlayer(id)?.name ?? 'Unknown'

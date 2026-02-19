@@ -37,23 +37,26 @@
       <h2 class="mb-4 text-xl font-semibold text-white">Current Top 5</h2>
       <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
         <ol class="space-y-2">
-          <li
+          <NuxtLink
             v-for="(p, i) in topPlayers"
             :key="p.playerId"
-            class="flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-3"
+            :to="`/players/${p.playerId}`"
+            class="flex items-center justify-between rounded-lg bg-slate-800/50 px-4 py-3 transition hover:bg-slate-800"
           >
             <span class="flex items-center gap-3">
               <span
-                class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
-                :class="i === 0 ? 'bg-amber-500/30 text-amber-400' : 'bg-slate-700 text-slate-300'"
+                class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-slate-300"
               >
                 {{ p.rank }}
               </span>
               <PlayerAvatar :avatar-url="p.player?.avatarUrl" :name="p.name" size="sm" />
               {{ p.name }}
+              <AnimatedEmoji v-if="i === 0" type="fire" :size="22" />
+              <AnimatedEmoji v-else-if="i === 1" type="cold" :size="22" />
+              <AnimatedEmoji v-else-if="i === 2" type="love" :size="22" />
             </span>
             <span class="font-mono text-amber-400">{{ p.points }} pts</span>
-          </li>
+          </NuxtLink>
         </ol>
       </div>
     </div>
@@ -61,7 +64,17 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'default' })
+
 const user = useSupabaseUser()
+
+watch(
+  user,
+  (u) => {
+    setPageLayout(u ? 'admin' : 'default')
+  },
+  { immediate: true }
+)
 const playersStore = usePlayersStore()
 const weeklyStore = useWeeklyPointsStore()
 

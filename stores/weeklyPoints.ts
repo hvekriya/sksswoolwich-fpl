@@ -15,6 +15,7 @@ export interface WeekPerformance {
   assists: number
   saves: number // goals saved
   isMvp: boolean
+  didntPlay?: boolean
 }
 
 export interface Week {
@@ -43,7 +44,7 @@ export const useWeeklyPointsStore = defineStore('weeklyPoints', {
       let total = 0
       for (const week of state.weeks) {
         const perf = week.performances.find((p) => p.playerId === playerId)
-        if (perf) {
+        if (perf && !perf.didntPlay) {
           total +=
             perf.goals * POINTS.goal +
             perf.assists * POINTS.assist +
@@ -59,6 +60,7 @@ export const useWeeklyPointsStore = defineStore('weeklyPoints', {
         const totals = new Map<string, number>()
         for (const week of state.weeks) {
           for (const perf of week.performances) {
+            if (perf.didntPlay) continue
             const pts =
               perf.goals * POINTS.goal +
               perf.assists * POINTS.assist +
@@ -104,6 +106,7 @@ export const useWeeklyPointsStore = defineStore('weeklyPoints', {
           assists: 0,
           saves: 0,
           isMvp: false,
+          didntPlay: false,
         }
         week.performances.push(p)
       }
@@ -115,6 +118,7 @@ export const useWeeklyPointsStore = defineStore('weeklyPoints', {
       }
     },
     getPointsForPerformance(perf: WeekPerformance) {
+      if (perf.didntPlay) return 0
       return (
         perf.goals * POINTS.goal +
         perf.assists * POINTS.assist +

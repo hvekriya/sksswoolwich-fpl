@@ -42,6 +42,7 @@ export async function syncWeeksToSupabase(supabase: any, weeks: Week[]) {
         assists: p.assists,
         saves: p.saves,
         is_mvp: p.isMvp,
+        didnt_play: p.didntPlay ?? false,
       }, { onConflict: 'week_id,player_id' })
     }
   }
@@ -63,6 +64,7 @@ export async function syncWeeksFromSupabase(supabase: any): Promise<Week[]> {
       assists: p.assists,
       saves: p.saves,
       isMvp: p.is_mvp,
+      didntPlay: p.didnt_play ?? false,
     }))
     result.push({
       id: w.id,

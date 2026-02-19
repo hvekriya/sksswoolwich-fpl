@@ -1,48 +1,184 @@
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100">
     <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
-      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <NuxtLink to="/" class="text-xl font-bold tracking-tight text-amber-400">
-          SKSS Woolwich FPL
-        </NuxtLink>
-        <div class="flex gap-6">
-          <NuxtLink
-            to="/"
-            class="text-slate-300 transition hover:text-white"
-            active-class="text-amber-400"
-          >
-            Home
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <NuxtLink to="/" class="text-xl font-bold tracking-tight text-amber-400">
+            SKSS Woolwich FPL
           </NuxtLink>
-          <NuxtLink
-            v-if="user"
-            to="/players"
-            class="text-slate-300 transition hover:text-white"
-            active-class="text-amber-400"
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded p-2 text-slate-400 hover:bg-slate-800 hover:text-white md:hidden"
+            aria-label="Toggle menu"
+            @click="open = !open"
           >
-            Players
-          </NuxtLink>
-          <NuxtLink
-            to="/rankings"
-            class="text-slate-300 transition hover:text-white"
-            active-class="text-amber-400"
-          >
-            Rankings
-          </NuxtLink>
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                v-if="!open"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+              <path
+                v-else
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+          <div class="hidden items-center gap-6 md:flex">
           <template v-if="user">
             <NuxtLink
               to="/admin"
               class="rounded bg-amber-500/20 px-3 py-1 text-amber-400 transition hover:bg-amber-500/30"
+              active-class="!bg-amber-500/30"
+            >
+              Admin
+            </NuxtLink>
+            <NuxtLink
+              to="/"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Home
+            </NuxtLink>
+            <NuxtLink
+              to="/players"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Players
+            </NuxtLink>
+            <NuxtLink
+              to="/admin/weeks"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Manage Weeks
+            </NuxtLink>
+            <NuxtLink
+              to="/admin"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Weekly Points
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink
+              to="/"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Home
+            </NuxtLink>
+            <NuxtLink
+              to="/rankings"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Rankings
+            </NuxtLink>
+            <NuxtLink
+              to="/performance"
+              class="text-slate-300 transition hover:text-white"
+              active-class="text-amber-400"
+            >
+              Performance
+            </NuxtLink>
+            <NuxtLink
+              to="/login"
+              class="text-sm text-slate-600 transition hover:text-slate-400"
             >
               Admin
             </NuxtLink>
           </template>
-          <NuxtLink
-            v-else
-            to="/login"
-            class="text-sm text-slate-600 transition hover:text-slate-400"
-          >
-            Admin
-          </NuxtLink>
+          </div>
+        </div>
+        <div
+          v-show="open"
+          class="border-t border-slate-800 py-3 md:hidden"
+        >
+          <div class="flex flex-col gap-1">
+            <template v-if="user">
+              <NuxtLink
+                to="/admin"
+                class="rounded px-3 py-2 text-amber-400 hover:bg-slate-800"
+                active-class="bg-amber-500/20"
+                @click="open = false"
+              >
+                Admin
+              </NuxtLink>
+              <NuxtLink
+                to="/"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Home
+              </NuxtLink>
+              <NuxtLink
+                to="/players"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Players
+              </NuxtLink>
+              <NuxtLink
+                to="/admin/weeks"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Manage Weeks
+              </NuxtLink>
+              <NuxtLink
+                to="/admin"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Weekly Points
+              </NuxtLink>
+            </template>
+            <template v-else>
+              <NuxtLink
+                to="/"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Home
+              </NuxtLink>
+              <NuxtLink
+                to="/rankings"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Rankings
+              </NuxtLink>
+              <NuxtLink
+                to="/performance"
+                class="rounded px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+                active-class="text-amber-400"
+                @click="open = false"
+              >
+                Performance
+              </NuxtLink>
+              <NuxtLink
+                to="/login"
+                class="rounded px-3 py-2 text-slate-600 hover:bg-slate-800 hover:text-slate-400"
+                @click="open = false"
+              >
+                Admin
+              </NuxtLink>
+            </template>
+          </div>
         </div>
       </div>
     </nav>
@@ -54,4 +190,5 @@
 
 <script setup lang="ts">
 const user = useSupabaseUser()
+const open = ref(false)
 </script>

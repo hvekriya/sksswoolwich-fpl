@@ -25,28 +25,45 @@
           </button>
         </div>
         <div class="rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-slate-700 bg-slate-800/50">
-                <th class="px-6 py-4 text-left font-medium text-slate-300">Label</th>
-                <th class="px-6 py-4 text-left font-medium text-slate-300">Date</th>
-                <th class="px-6 py-4 text-left font-medium text-slate-300">Performances</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="w in weeklyStore.allWeeks"
-                :key="w.id"
-                class="border-b border-slate-800 transition hover:bg-slate-800/30"
-              >
-                <td class="px-6 py-4 font-medium text-white">{{ w.label }}</td>
-                <td class="px-6 py-4 text-slate-300">{{ formatDate(w.date) }}</td>
-                <td class="px-6 py-4 text-slate-400">
-                  {{ w.performances.filter((p) => p.goals || p.assists || p.saves || p.isMvp).length }} players with stats
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Mobile: cards -->
+          <div class="divide-y divide-slate-800 md:hidden">
+            <div
+              v-for="w in weeklyStore.allWeeks"
+              :key="w.id"
+              class="flex flex-col gap-1 px-4 py-3"
+            >
+              <span class="font-medium text-white">{{ w.label }}</span>
+              <span class="text-sm text-slate-300">{{ formatDate(w.date) }}</span>
+              <span class="text-sm text-slate-400">
+                {{ w.performances.filter((p) => p.goals || p.assists || p.saves || p.isMvp).length }} players with stats
+              </span>
+            </div>
+          </div>
+          <!-- Desktop: table -->
+          <div class="hidden md:block">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-slate-700 bg-slate-800/50">
+                  <th class="px-6 py-4 text-left font-medium text-slate-300">Label</th>
+                  <th class="px-6 py-4 text-left font-medium text-slate-300">Date</th>
+                  <th class="px-6 py-4 text-left font-medium text-slate-300">Performances</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="w in weeklyStore.allWeeks"
+                  :key="w.id"
+                  class="border-b border-slate-800 transition hover:bg-slate-800/30"
+                >
+                  <td class="px-6 py-4 font-medium text-white">{{ w.label }}</td>
+                  <td class="px-6 py-4 text-slate-300">{{ formatDate(w.date) }}</td>
+                  <td class="px-6 py-4 text-slate-400">
+                    {{ w.performances.filter((p) => p.goals || p.assists || p.saves || p.isMvp).length }} players with stats
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
   </div>
 </template>

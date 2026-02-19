@@ -31,8 +31,12 @@ create table if not exists performances (
   assists integer not null default 0,
   saves integer not null default 0,
   is_mvp boolean not null default false,
+  didnt_play boolean default false,
   unique(week_id, player_id)
 );
+
+-- Add didnt_play if performances table already exists:
+-- alter table performances add column if not exists didnt_play boolean default false;
 
 -- Allow public read and write (for shared league)
 alter table players enable row level security;

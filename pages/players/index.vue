@@ -39,8 +39,9 @@
         class="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-4"
       >
         <div class="relative flex-shrink-0">
-          <div
-            class="h-14 w-14 overflow-hidden rounded-full bg-slate-700"
+          <NuxtLink
+            :to="`/players/${player.id}`"
+            class="block h-14 w-14 overflow-hidden rounded-full bg-slate-700 transition hover:ring-2 hover:ring-amber-500"
             :class="{ 'ring-2 ring-amber-500': player.avatarUrl }"
           >
             <img
@@ -55,7 +56,7 @@
             >
               {{ (player.name || '?')[0] }}
             </span>
-          </div>
+          </NuxtLink>
           <label
             class="absolute -bottom-1 -right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-amber-500 text-slate-900 transition hover:bg-amber-400"
             :class="{ 'opacity-50': uploading === player.id }"
@@ -70,19 +71,30 @@
             {{ uploading === player.id ? '…' : '+' }}
           </label>
         </div>
-        <div class="min-w-0 flex-1">
+        <NuxtLink
+          :to="`/players/${player.id}`"
+          class="min-w-0 flex-1 transition hover:text-amber-400"
+        >
           <span v-if="player.number" class="mr-2 text-slate-500">#{{ player.number }}</span>
           <span class="font-medium text-white">{{ player.name }}</span>
           <span class="ml-2 rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-300">
             {{ player.position }}
           </span>
+        </NuxtLink>
+        <div class="flex gap-1">
+          <NuxtLink
+            :to="`/players/${player.id}?edit=1`"
+            class="rounded p-2 text-slate-400 transition hover:bg-amber-500/20 hover:text-amber-400"
+          >
+            Edit
+          </NuxtLink>
+          <button
+            class="rounded p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
+            @click="confirmRemovePlayer(player)"
+          >
+            Remove
+          </button>
         </div>
-        <button
-          class="rounded p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
-          @click="playersStore.removePlayer(player.id)"
-        >
-          Remove
-        </button>
       </div>
     </div>
     <p v-if="!playersStore.allPlayers.length" class="text-slate-500">
@@ -92,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'admin-auth' })
+definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 const playersStore = usePlayersStore()
 const { uploadAvatar } = usePlayerAvatar()
@@ -115,6 +127,15 @@ async function onAvatarChange(playerId: string, e: Event) {
   } finally {
     uploading.value = null
   }
+}
+
+function confirmRemovePlayer(player: { id: string; name: string }) {
+  if (
+    !confirm(
+      `Are you sure you want to remove ${player.name}?\n\nTheir record, photo and all weekly stats will be permanently deleted.`
+    )
+  ) return
+  playersStore.removePlayer(player.id)
 }
 
 function addPlayer() {

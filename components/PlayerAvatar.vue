@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex overflow-hidden rounded-full bg-slate-700"
+    class="avatar-glow flex overflow-hidden rounded-full bg-slate-700"
     :class="sizeClass"
   >
     <img
@@ -42,3 +42,28 @@ const textSizeClass = computed(() => {
   }
 })
 </script>
+
+<style scoped>
+.avatar-glow {
+  box-shadow:
+    0 0 0 2px rgb(30 41 59),
+    0 0 8px 1px rgb(239 68 68 / 0.35),
+    0 0 14px 2px rgb(239 68 68 / 0.2);
+  animation: avatar-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes avatar-glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgb(30 41 59),
+      0 0 8px 1px rgb(239 68 68 / 0.35),
+      0 0 14px 2px rgb(239 68 68 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgb(30 41 59),
+      0 0 10px 2px rgb(239 68 68 / 0.45),
+      0 0 18px 3px rgb(239 68 68 / 0.25);
+  }
+}
+</style>
