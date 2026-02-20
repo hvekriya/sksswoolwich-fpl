@@ -7,10 +7,11 @@ Fantasy football league app for tracking player performance and rankings.
 - **Players** – Add and manage squad players (GK, DEF, MID, FWD)
 - **Admin** – Enter weekly points every Wednesday based on football performance
 - **Points system**
-  - Goals: 3 pts
-  - Assists: 2 pts
-  - Goals saved (for keepers): 1 pt
-  - MVP: 5 pts bonus
+  - Played: 2 pts
+  - Goals: GK/DEF 6 pts, MID 5 pts, FWD 4 pts
+  - Assists: 3 pts
+  - Saves: 1 pt per 3 saves
+  - MVP: 3 pts bonus
 - **Yearly rankings** – Leaderboard for the season
 - **Weekly performance** – View each player’s stats by week
 

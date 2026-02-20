@@ -32,6 +32,18 @@
               class="w-20 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
             />
           </div>
+          <div>
+            <label class="mb-1 block text-sm text-slate-400">Position</label>
+            <select
+              v-model="editPosition"
+              class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
+            >
+              <option value="GK">Goalkeeper</option>
+              <option value="DEF">Defender</option>
+              <option value="MID">Midfielder</option>
+              <option value="FWD">Forward</option>
+            </select>
+          </div>
           <button
             class="rounded-lg bg-amber-500 px-4 py-2 font-medium text-slate-900 transition hover:bg-amber-400"
             @click="saveEdit"
@@ -173,6 +185,7 @@ const weeklyStore = useWeeklyPointsStore()
 const editing = ref(false)
 const editName = ref('')
 const editNumber = ref<number | undefined>(undefined)
+const editPosition = ref<'GK' | 'DEF' | 'MID' | 'FWD'>('GK')
 
 const playerId = computed(() => route.params.id as string)
 const player = computed(() => playersStore.getPlayer(playerId.value))
@@ -181,6 +194,7 @@ function startEdit() {
   if (player.value) {
     editName.value = player.value.name
     editNumber.value = player.value.number
+    editPosition.value = player.value.position
     editing.value = true
   }
 }
@@ -205,6 +219,7 @@ function saveEdit() {
   playersStore.updatePlayer(player.value.id, {
     name: editName.value.trim(),
     number: editNumber.value,
+    position: editPosition.value,
   })
   editing.value = false
 }

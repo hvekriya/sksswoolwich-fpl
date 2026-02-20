@@ -2,7 +2,7 @@
   <div>
         <h1 class="mb-2 text-3xl font-bold text-white">Weekly Points</h1>
         <p class="mb-8 text-slate-400">
-          Enter player performance for each week. Points: Goals (3), Assists (2), Saves (1), MVP (5).
+          Enter player performance for each week. Points: Played (2), Goals (GK/DEF 6, MID 5, FWD 4), Assists (3), Saves (1 per 3), MVP (3).
         </p>
         <div v-if="!weeklyStore.allWeeks.length" class="rounded-xl border border-amber-500/30 bg-amber-500/5 p-8 text-center">
           <p class="mb-4 text-amber-400">No weeks yet.</p>
@@ -186,13 +186,15 @@ function setPlayed(playerId: string, played: boolean) {
 
 function getPointsPreview(playerId: string) {
   const p = getPerf(playerId)
-  if (p.didntPlay) return 0
-  return (
-    p.goals * 3 +
-    p.assists * 2 +
-    p.saves * 1 +
-    (p.isMvp ? 5 : 0)
-  )
+  return weeklyStore.getPointsForPerformance({
+    weekId: selectedWeekId.value || '',
+    playerId,
+    goals: p.goals,
+    assists: p.assists,
+    saves: p.saves,
+    isMvp: p.isMvp,
+    didntPlay: p.didntPlay,
+  })
 }
 
 function formatDate(d: string) {

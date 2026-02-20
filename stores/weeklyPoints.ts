@@ -1,11 +1,29 @@
 import { defineStore } from 'pinia'
+import { usePlayersStore, type Position } from '~/stores/players'
 
 // Points configuration (customizable)
 export const POINTS = {
-  goal: 3,
-  assist: 2,
-  save: 1, // goals saved (for GKs)
-  mvp: 5,
+  appearance: 2,
+  assist: 3,
+  savesPerPoint: 3,
+  mvp: 3,
+  goalByPosition: {
+    GK: 6,
+    DEF: 6,
+    MID: 5,
+    FWD: 4,
+  } as Record<Position, number>,
+}
+
+function calculatePoints(perf: WeekPerformance, position: Position = 'FWD') {
+  if (perf.didntPlay) return 0
+  return (
+    POINTS.appearance +
+    perf.goals * POINTS.goalByPosition[position] +
+    perf.assists * POINTS.assist +
+    Math.floor(perf.saves / POINTS.savesPerPoint) +
+    (perf.isMvp ? POINTS.mvp : 0)
+  )
 }
 
 export interface WeekPerformance {
@@ -41,31 +59,24 @@ export const useWeeklyPointsStore = defineStore('weeklyPoints', {
       return week?.performances.find((p) => p.playerId === playerId) ?? null
     },
     totalPointsForPlayer: (state) => (playerId: string) => {
+      const playersStore = usePlayersStore()
+      const position = playersStore.getPlayer(playerId)?.position ?? 'FWD'
       let total = 0
       for (const week of state.weeks) {
         const perf = week.performances.find((p) => p.playerId === playerId)
-        if (perf && !perf.didntPlay) {
-          total +=
-            perf.goals * POINTS.goal +
-            perf.assists * POINTS.assist +
-            perf.saves * POINTS.save +
-            (perf.isMvp ? POINTS.mvp : 0)
-        }
+        if (perf) total += calculatePoints(perf, position)
       }
       return total
     },
     yearlyRanking:
       (state) =>
       (getPlayerName: (id: string) => string) => {
+        const playersStore = usePlayersStore()
         const totals = new Map<string, number>()
         for (const week of state.weeks) {
           for (const perf of week.performances) {
-            if (perf.didntPlay) continue
-            const pts =
-              perf.goals * POINTS.goal +
-              perf.assists * POINTS.assist +
-              perf.saves * POINTS.save +
-              (perf.isMvp ? POINTS.mvp : 0)
+            const position = playersStore.getPlayer(perf.playerId)?.position ?? 'FWD'
+            const pts = calculatePoints(perf, position)
             totals.set(
               perf.playerId,
               (totals.get(perf.playerId) ?? 0) + pts
@@ -118,13 +129,9 @@ export const useWeeklyPointsStore = defineStore('weeklyPoints', {
       }
     },
     getPointsForPerformance(perf: WeekPerformance) {
-      if (perf.didntPlay) return 0
-      return (
-        perf.goals * POINTS.goal +
-        perf.assists * POINTS.assist +
-        perf.saves * POINTS.save +
-        (perf.isMvp ? POINTS.mvp : 0)
-      )
+      const playersStore = usePlayersStore()
+      const position = playersStore.getPlayer(perf.playerId)?.position ?? 'FWD'
+      return calculatePoints(perf, position)
     },
   },
   persist: true,
