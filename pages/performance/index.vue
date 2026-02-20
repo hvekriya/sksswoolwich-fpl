@@ -31,11 +31,16 @@
             class="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-800/20"
             @click="navigateTo(`/players/${p.playerId}`)"
           >
-            <span class="font-medium text-white">{{ getPlayerName(p.playerId) }}</span>
+            <span>
+              <span class="font-medium text-white">{{ getPlayerName(p.playerId) }}</span>
+              <span class="block text-xs" :class="p.didntPlay ? 'text-rose-400' : 'text-emerald-400'">
+                {{ p.didntPlay ? "Didn't play ✗" : 'Played ✓' }}
+              </span>
+            </span>
             <div class="flex flex-wrap items-center gap-4 text-sm">
-              <span><span class="text-slate-500">G</span> {{ p.didntPlay ? '—' : p.goals }}</span>
-              <span><span class="text-slate-500">A</span> {{ p.didntPlay ? '—' : p.assists }}</span>
-              <span><span class="text-slate-500">S</span> {{ p.didntPlay ? '—' : p.saves }}</span>
+              <span><span class="text-slate-500">G</span> {{ p.didntPlay ? '—' : `${p.goals} (${goalPoints(p.playerId, p.goals)} pts)` }}</span>
+              <span><span class="text-slate-500">A</span> {{ p.didntPlay ? '—' : `${p.assists} (${assistPoints(p.assists)} pts)` }}</span>
+              <span><span class="text-slate-500">S</span> {{ p.didntPlay ? '—' : `${p.saves} (${savePoints(p.saves)} pts)` }}</span>
               <span>
                 <AnimatedEmoji v-if="p.isMvp" type="medal" :size="20" />
                 <span v-else class="text-slate-600">—</span>
@@ -68,10 +73,13 @@
               >
                 <td class="px-6 py-3 font-medium text-white">
                   {{ getPlayerName(p.playerId) }}
+                  <div class="text-xs font-normal" :class="p.didntPlay ? 'text-rose-400' : 'text-emerald-400'">
+                    {{ p.didntPlay ? "Didn't play ✗" : 'Played ✓' }}
+                  </div>
                 </td>
-                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : p.goals }}</td>
-                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : p.assists }}</td>
-                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : p.saves }}</td>
+                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : `${p.goals} (${goalPoints(p.playerId, p.goals)} pts)` }}</td>
+                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : `${p.assists} (${assistPoints(p.assists)} pts)` }}</td>
+                <td class="px-6 py-3 text-center text-slate-300">{{ p.didntPlay ? '—' : `${p.saves} (${savePoints(p.saves)} pts)` }}</td>
                 <td class="px-6 py-3 text-center">
                   <AnimatedEmoji v-if="p.isMvp" type="medal" :size="28" />
                   <span v-else class="text-slate-600">—</span>
@@ -92,6 +100,8 @@
 </template>
 
 <script setup lang="ts">
+import { POINTS } from '~/stores/weeklyPoints'
+
 const router = useRouter()
 const playersStore = usePlayersStore()
 
@@ -131,6 +141,22 @@ watch(
 
 function getPlayerName(id: string) {
   return playersStore.getPlayer(id)?.name ?? 'Unknown'
+}
+
+function getPlayerPosition(id: string): keyof typeof POINTS.goalByPosition {
+  return (playersStore.getPlayer(id)?.position ?? 'FWD') as keyof typeof POINTS.goalByPosition
+}
+
+function goalPoints(playerId: string, goals: number) {
+  return goals * POINTS.goalByPosition[getPlayerPosition(playerId)]
+}
+
+function assistPoints(assists: number) {
+  return assists * POINTS.assist
+}
+
+function savePoints(saves: number) {
+  return Math.floor(saves / POINTS.savesPerPoint)
 }
 
 function formatDate(d: string) {

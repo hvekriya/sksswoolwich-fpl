@@ -115,12 +115,16 @@
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <slot />
     </main>
+    <footer class="border-t border-slate-800 px-4 py-4 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
+      &copy; {{ currentYear }} SKSS Woolwich Temple FPL App | Managed by Viren (Speak to him for any complaints or wrong score)
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 const supabase = useSupabaseClient()
 const open = ref(false)
+const currentYear = new Date().getFullYear()
 
 async function signOut() {
   await supabase.auth.signOut()

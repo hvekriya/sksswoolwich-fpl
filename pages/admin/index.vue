@@ -14,7 +14,8 @@
           </NuxtLink>
         </div>
         <div v-else>
-          <div class="mb-6">
+          <div class="mb-6 flex flex-wrap items-end gap-3">
+            <div>
             <label class="mb-2 block text-sm text-slate-400">Select week</label>
             <select
               v-model="selectedWeekId"
@@ -24,6 +25,13 @@
                 {{ w.label }} ({{ formatDate(w.date) }})
               </option>
             </select>
+            </div>
+            <button
+              class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-slate-200 transition hover:border-amber-500 hover:text-white"
+              @click="markAllPlayed"
+            >
+              Mark all as Played (+2)
+            </button>
           </div>
           <div v-if="selectedWeek" class="rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
             <div class="border-b border-slate-800 bg-slate-800/50 px-6 py-3 font-medium text-white">
@@ -45,7 +53,7 @@
                       <input
                         type="radio"
                         :name="`played-${player.id}`"
-                        :checked="!getPerf(player.id).didntPlay"
+                        :checked="isPlayed(player.id)"
                         class="h-6 w-6 shrink-0 border-2 border-slate-500 bg-slate-800 text-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-900"
                         @change="setPlayed(player.id, true)"
                       />
@@ -55,7 +63,7 @@
                       <input
                         type="radio"
                         :name="`played-${player.id}`"
-                        :checked="getPerf(player.id).didntPlay"
+                        :checked="isDidntPlay(player.id)"
                         class="h-6 w-6 shrink-0 border-2 border-slate-500 bg-slate-800 text-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-900"
                         @change="setPlayed(player.id, false)"
                       />
@@ -63,7 +71,7 @@
                     </label>
                   </fieldset>
                 </div>
-                <template v-if="!getPerf(player.id).didntPlay">
+                <template v-if="isPlayed(player.id)">
                   <div>
                     <label class="mb-1 block text-xs text-slate-500">Goals</label>
                     <input
@@ -107,7 +115,8 @@
                     = <span class="font-mono text-amber-400">{{ getPointsPreview(player.id) }} pts</span>
                   </div>
                 </template>
-                <span v-else class="text-sm text-slate-500">0 pts</span>
+                <span v-else-if="isDidntPlay(player.id)" class="text-sm text-slate-500">0 pts</span>
+                <span v-else class="text-sm text-slate-500">Select Played/Didn't play</span>
               </div>
             </div>
             <p v-if="!playersStore.allPlayers.length" class="p-6 text-slate-500">
@@ -163,6 +172,21 @@ function getPerf(playerId: string) {
   return p ?? { goals: 0, assists: 0, saves: 0, isMvp: false, didntPlay: false }
 }
 
+function hasPerf(playerId: string) {
+  if (!selectedWeekId.value) return false
+  return !!weeklyStore.getPlayerPerformance(playerId, selectedWeekId.value)
+}
+
+function isPlayed(playerId: string) {
+  const p = selectedWeekId.value ? weeklyStore.getPlayerPerformance(playerId, selectedWeekId.value) : null
+  return !!p && !p.didntPlay
+}
+
+function isDidntPlay(playerId: string) {
+  const p = selectedWeekId.value ? weeklyStore.getPlayerPerformance(playerId, selectedWeekId.value) : null
+  return !!p?.didntPlay
+}
+
 function updatePerf(
   playerId: string,
   field: 'goals' | 'assists' | 'saves' | 'isMvp',
@@ -182,6 +206,15 @@ function setPlayed(playerId: string, played: boolean) {
     ? { didntPlay: false }
     : { didntPlay: true, goals: 0, assists: 0, saves: 0, isMvp: false }
   )
+}
+
+function markAllPlayed() {
+  if (!selectedWeekId.value) return
+  for (const player of playersStore.allPlayers) {
+    if (!hasPerf(player.id)) {
+      weeklyStore.setPerformance(selectedWeekId.value, player.id, { didntPlay: false })
+    }
+  }
 }
 
 function getPointsPreview(playerId: string) {

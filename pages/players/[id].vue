@@ -113,11 +113,16 @@
           :key="h.weekId"
           class="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
         >
-          <div class="font-medium text-white">{{ h.weekLabel }} ({{ formatDate(h.weekDate) }})</div>
+          <div>
+            <div class="font-medium text-white">{{ h.weekLabel }} ({{ formatDate(h.weekDate) }})</div>
+            <div class="text-xs" :class="h.didntPlay ? 'text-rose-400' : 'text-emerald-400'">
+              {{ h.didntPlay ? "Didn't play ✗" : 'Played ✓' }}
+            </div>
+          </div>
           <div class="flex flex-wrap items-center gap-4 text-sm">
-            <span><span class="text-slate-500">G</span> {{ h.didntPlay ? '—' : h.goals }}</span>
-            <span><span class="text-slate-500">A</span> {{ h.didntPlay ? '—' : h.assists }}</span>
-            <span><span class="text-slate-500">S</span> {{ h.didntPlay ? '—' : h.saves }}</span>
+            <span><span class="text-slate-500">G</span> {{ h.didntPlay ? '—' : `${h.goals} (${goalPoints(h.goals)} pts)` }}</span>
+            <span><span class="text-slate-500">A</span> {{ h.didntPlay ? '—' : `${h.assists} (${assistPoints(h.assists)} pts)` }}</span>
+            <span><span class="text-slate-500">S</span> {{ h.didntPlay ? '—' : `${h.saves} (${savePoints(h.saves)} pts)` }}</span>
             <span>
               <AnimatedEmoji v-if="h.isMvp" type="medal" :size="20" />
               <span v-else class="text-slate-600">—</span>
@@ -149,10 +154,13 @@
             >
               <td class="px-6 py-3 font-medium text-white">
                 {{ h.weekLabel }} ({{ formatDate(h.weekDate) }})
+                <div class="text-xs font-normal" :class="h.didntPlay ? 'text-rose-400' : 'text-emerald-400'">
+                  {{ h.didntPlay ? "Didn't play ✗" : 'Played ✓' }}
+                </div>
               </td>
-              <td class="px-6 py-3 text-center text-slate-300">{{ h.didntPlay ? '—' : h.goals }}</td>
-              <td class="px-6 py-3 text-center text-slate-300">{{ h.didntPlay ? '—' : h.assists }}</td>
-              <td class="px-6 py-3 text-center text-slate-300">{{ h.didntPlay ? '—' : h.saves }}</td>
+              <td class="px-6 py-3 text-center text-slate-300">{{ h.didntPlay ? '—' : `${h.goals} (${goalPoints(h.goals)} pts)` }}</td>
+              <td class="px-6 py-3 text-center text-slate-300">{{ h.didntPlay ? '—' : `${h.assists} (${assistPoints(h.assists)} pts)` }}</td>
+              <td class="px-6 py-3 text-center text-slate-300">{{ h.didntPlay ? '—' : `${h.saves} (${savePoints(h.saves)} pts)` }}</td>
               <td class="px-6 py-3 text-center">
                 <AnimatedEmoji v-if="h.isMvp" type="medal" :size="28" />
                 <span v-else class="text-slate-600">—</span>
@@ -176,6 +184,8 @@
 </template>
 
 <script setup lang="ts">
+import { POINTS } from '~/stores/weeklyPoints'
+
 const route = useRoute()
 const router = useRouter()
 const user = useSupabaseUser()
@@ -283,5 +293,18 @@ function formatDate(d: string) {
     day: 'numeric',
     month: 'short',
   })
+}
+
+function goalPoints(goals: number) {
+  const position = (player.value?.position ?? 'FWD') as keyof typeof POINTS.goalByPosition
+  return goals * POINTS.goalByPosition[position]
+}
+
+function assistPoints(assists: number) {
+  return assists * POINTS.assist
+}
+
+function savePoints(saves: number) {
+  return Math.floor(saves / POINTS.savesPerPoint)
 }
 </script>
